@@ -12,7 +12,12 @@ public class CrcCalculator {
 
     public static final byte[] TestBytes = new byte[]{49,50,51,52,53,54,55,56,57};
 
-    CrcCalculator(AlgoParams params)
+    public CrcCalculator(String algorithm) throws IllegalArgumentException
+    {
+        this(getCrcParams(algorithm));
+    }
+    
+    public CrcCalculator(AlgoParams params)
     {
         Parameters = params;
 
@@ -24,7 +29,7 @@ public class CrcCalculator {
 
         CreateTable();
     }
-
+    
     public long Calc(byte[] data, int offset, int length)
     {
         long init = Parameters.RefOut ? CrcHelper.ReverseBits(Parameters.Init, HashSize) : Parameters.Init;
@@ -87,5 +92,29 @@ public class CrcCalculator {
             r = CrcHelper.ReverseBits(r, HashSize);
 
         return r & _mask;
+    }
+    
+    private static AlgoParams getCrcParams(String algorithm) throws IllegalArgumentException {
+        for (AlgoParams algo : Crc8.Params) {
+            if (algo.Name.equalsIgnoreCase(algorithm)) {
+                return algo;
+            }
+        }
+        for (AlgoParams algo : Crc16.Params) {
+            if (algo.Name.equalsIgnoreCase(algorithm)) {
+                return algo;
+            }
+        }
+        for (AlgoParams algo : Crc32.Params) {
+            if (algo.Name.equalsIgnoreCase(algorithm)) {
+                return algo;
+            }
+        }
+        for (AlgoParams algo : Crc64.Params) {
+            if (algo.Name.equalsIgnoreCase(algorithm)) {
+                return algo;
+            }
+        }
+        throw new IllegalArgumentException("Parameter " + algorithm + " is not valid CRC algorithm");
     }
 }
